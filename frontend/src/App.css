@@ -51,3 +51,13 @@ th { color: #52606d; font-weight: 600; }
 }
 .btn-aprovar { background: #0f9d58; }
 .btn-estornar { background: #e12d39; }
+
+.status {
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+.status-aberta { background: #fff3c4; color: #8d6e00; }
+.status-fechada { background: #c6f7e2; color: #0b6b3a; }
+.status-paga { background: #cce3ff; color: #0b4a99; }
