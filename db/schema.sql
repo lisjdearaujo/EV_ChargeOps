@@ -33,3 +33,25 @@ CREATE TABLE usuario (
     capacidade_bateria_kwh NUMERIC(6,2),          -- usada pela IA para validar consumo
     criado_em              TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
+
+CREATE TABLE carregador (
+    id                  SERIAL PRIMARY KEY,
+    codigo              VARCHAR(40)  NOT NULL UNIQUE,  -- charge point id do OCPP
+    modelo              VARCHAR(40)  NOT NULL,
+    potencia_nominal_kw NUMERIC(5,2) NOT NULL,
+    local               VARCHAR(80)
+);
+
+-- Tarifa vigente por competencia (mes). A bandeira ajusta o valor base do kWh
+CREATE TABLE tarifa (
+    id                  SERIAL PRIMARY KEY,
+    competencia         DATE         NOT NULL UNIQUE
+                        CHECK (competencia = date_trunc('month', competencia)::date),
+    bandeira            VARCHAR(10)  NOT NULL
+                        CHECK (bandeira IN ('verde', 'amarela', 'vermelha')),
+    tarifa_base_kwh     NUMERIC(8,4) NOT NULL,   -- R$/kWh ja com bandeira aplicada
+    adicional_ponta_kwh NUMERIC(8,4) NOT NULL,   -- R$/kWh somado no horario de ponta
+    custo_fixo_mensal   NUMERIC(10,2) NOT NULL,  -- manutencao e depreciacao
+    ponta_inicio        TIME         NOT NULL DEFAULT '18:00',
+    ponta_fim           TIME         NOT NULL DEFAULT '21:00'
+);
