@@ -19,3 +19,35 @@ th { color: #52606d; font-weight: 600; }
 .barra-nome { width: 130px; font-size: 0.9rem; }
 .barra-fundo { flex: 1; background: #e4e7eb; border-radius: 4px; height: 18px; }
 .barra { background: #0f9d58; height: 100%; border-radius: 4px; }
+
+.painel .cartao:not(:last-child) { margin-bottom: 20px; }
+
+.alerta {
+  border: 1px solid #f0b429;
+  background: #fffbea;
+  border-radius: 6px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.alerta-topo { display: flex; align-items: center; gap: 8px; }
+.selo {
+  margin-left: auto;
+  background: #e12d39;
+  color: #fff;
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 0.8rem;
+}
+.alerta-detalhe { margin: 6px 0 0; color: #52606d; font-size: 0.9rem; }
+.alerta-motivo { margin: 6px 0 12px; }
+.acoes { display: flex; gap: 8px; }
+.acoes button {
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #fff;
+}
+.btn-aprovar { background: #0f9d58; }
+.btn-estornar { background: #e12d39; }
