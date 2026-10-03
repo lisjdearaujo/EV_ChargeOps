@@ -85,3 +85,16 @@ CREATE TABLE sessao (
 CREATE INDEX idx_sessao_usuario_inicio ON sessao (usuario_id, inicio);
 CREATE INDEX idx_sessao_inicio         ON sessao (inicio);
 CREATE INDEX idx_sessao_revisao        ON sessao (status_revisao);
+
+-- Leituras periodicas (MeterValues, ~60 s): serie temporal da sessao
+CREATE TABLE meter_value (
+    id                      BIGSERIAL PRIMARY KEY,
+    sessao_id               INTEGER      NOT NULL REFERENCES sessao(id) ON DELETE CASCADE,
+    momento                 TIMESTAMPTZ  NOT NULL,
+    potencia_kw             NUMERIC(6,3),
+    tensao_v                NUMERIC(6,2),
+    corrente_a              NUMERIC(6,2),
+    energia_acumulada_kwh   NUMERIC(10,3)
+);
+
+CREATE INDEX idx_meter_sessao_momento ON meter_value (sessao_id, momento);
