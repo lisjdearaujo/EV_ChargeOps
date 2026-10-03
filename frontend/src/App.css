@@ -61,3 +61,26 @@ th { color: #52606d; font-weight: 600; }
 .status-aberta { background: #fff3c4; color: #8d6e00; }
 .status-fechada { background: #c6f7e2; color: #0b6b3a; }
 .status-paga { background: #cce3ff; color: #0b4a99; }
+
+.cartoes-resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.metrica { background: #f4f6f8; border-radius: 6px; padding: 12px; }
+.metrica span { display: block; color: #52606d; font-size: 0.8rem; }
+.metrica strong { font-size: 1.1rem; }
+
+.grafico { display: flex; align-items: stretch; gap: 6px; height: 170px; }
+.coluna { flex: 1; display: flex; flex-direction: column; }
+.coluna-area { flex: 1; display: flex; align-items: flex-end; }
+.coluna-barra { width: 100%; border-radius: 4px 4px 0 0; }
+.coluna-real { background: #0f9d58; }
+.coluna-previsto { background: #bcccdc; border: 2px dashed #486581; }
+.coluna-rotulo { font-size: 0.7rem; color: #52606d; text-align: center; margin-top: 4px; }
+
+.legenda { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #52606d; }
+.legenda-real, .legenda-previsto { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+.legenda-real { background: #0f9d58; }
+.legenda-previsto { background: #bcccdc; border: 2px dashed #486581; margin-left: 12px; }

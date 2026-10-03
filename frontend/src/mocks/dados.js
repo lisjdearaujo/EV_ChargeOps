@@ -43,3 +43,27 @@ export const faturas = [
     status: "aberta",
   },
 ];
+
+// Previsao de exemplo (valores ilustrativos; os reais virao do modulo de IA).
+export const previsao = {
+  modelo: "Prophet",
+  mae_kwh: 1.8,
+  pico_previsto_kw: 6.9,
+  demanda_recomendada_kw: 7.0,
+  serie: [
+    { data: "2026-09-27", kwh: 5.2, tipo: "real" },
+    { data: "2026-09-28", kwh: 6.1, tipo: "real" },
+    { data: "2026-09-29", kwh: 4.8, tipo: "real" },
+    { data: "2026-09-30", kwh: 5.9, tipo: "real" },
+    { data: "2026-10-01", kwh: 7.4, tipo: "real" },
+    { data: "2026-10-02", kwh: 6.6, tipo: "real" },
+    { data: "2026-10-03", kwh: 5.5, tipo: "real" },
+    { data: "2026-10-04", kwh: 5.8, tipo: "previsto" },
+    { data: "2026-10-05", kwh: 6.3, tipo: "previsto" },
+    { data: "2026-10-06", kwh: 5.1, tipo: "previsto" },
+    { data: "2026-10-07", kwh: 6.0, tipo: "previsto" },
+    { data: "2026-10-08", kwh: 7.0, tipo: "previsto" },
+    { data: "2026-10-09", kwh: 6.4, tipo: "previsto" },
+    { data: "2026-10-10", kwh: 5.6, tipo: "previsto" },
+  ],
+};

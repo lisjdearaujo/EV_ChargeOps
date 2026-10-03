@@ -1,6 +1,7 @@
 import ConsumoPorUnidade from "./components/ConsumoPorUnidade";
 import AlertasIA from "./components/AlertasIA";
 import Faturas from "./components/Faturas";
+import Previsao from "./components/Previsao";
 import "./App.css";
 
 const COMPETENCIA = "2026-09";
@@ -15,6 +16,7 @@ export default function App() {
       <AlertasIA />
       <Faturas competencia={COMPETENCIA} />
       <ConsumoPorUnidade competencia={COMPETENCIA} />
+      <Previsao />
     </main>
   );
 }
