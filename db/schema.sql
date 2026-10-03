@@ -55,3 +55,33 @@ CREATE TABLE tarifa (
     ponta_inicio        TIME         NOT NULL DEFAULT '18:00',
     ponta_fim           TIME         NOT NULL DEFAULT '21:00'
 );
+
+-- Sessao de recarga (um ciclo StartTransaction -> StopTransaction)
+CREATE TABLE sessao (
+    id                SERIAL PRIMARY KEY,
+    transaction_id    INTEGER      UNIQUE,            -- id da transacao no OCPP
+    usuario_id        INTEGER      NOT NULL REFERENCES usuario(id),
+    carregador_id     INTEGER      NOT NULL REFERENCES carregador(id),
+    inicio            TIMESTAMPTZ  NOT NULL,
+    fim               TIMESTAMPTZ,
+    meter_inicio_kwh  NUMERIC(10,3) NOT NULL,
+    meter_fim_kwh     NUMERIC(10,3),
+    -- consumo bruto = leitura final - leitura inicial (nulo enquanto em andamento)
+    energia_kwh       NUMERIC(10,3)
+                      GENERATED ALWAYS AS (meter_fim_kwh - meter_inicio_kwh) STORED,
+    status            VARCHAR(15)  NOT NULL DEFAULT 'em_andamento'
+                      CHECK (status IN ('em_andamento', 'concluida', 'interrompida')),
+    motivo_termino    VARCHAR(60),
+    -- campos preenchidos pelo modulo de IA ao encerrar a sessao
+    anomaly_score     NUMERIC(6,4),
+    status_revisao    VARCHAR(15)  NOT NULL DEFAULT 'pendente'
+                      CHECK (status_revisao IN
+                             ('pendente', 'normal', 'em_revisao', 'aprovada', 'estornada')),
+    motivo_alerta     VARCHAR(200),
+    CHECK (fim IS NULL OR fim >= inicio),
+    CHECK (meter_fim_kwh IS NULL OR meter_fim_kwh >= meter_inicio_kwh)
+);
+
+CREATE INDEX idx_sessao_usuario_inicio ON sessao (usuario_id, inicio);
+CREATE INDEX idx_sessao_inicio         ON sessao (inicio);
+CREATE INDEX idx_sessao_revisao        ON sessao (status_revisao);
