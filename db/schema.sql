@@ -98,3 +98,19 @@ CREATE TABLE meter_value (
 );
 
 CREATE INDEX idx_meter_sessao_momento ON meter_value (sessao_id, momento);
+
+-- Fatura mensal por unidade
+CREATE TABLE fatura (
+    id               SERIAL PRIMARY KEY,
+    unidade_id       INTEGER      NOT NULL REFERENCES unidade(id),
+    competencia      DATE         NOT NULL,
+    num_sessoes      INTEGER      NOT NULL DEFAULT 0,
+    kwh_total        NUMERIC(10,3) NOT NULL DEFAULT 0,
+    valor_variavel   NUMERIC(10,2) NOT NULL DEFAULT 0,  -- soma(kWh x tarifa ajustada)
+    valor_fixo       NUMERIC(10,2) NOT NULL DEFAULT 0,  -- custo fixo / usuarios ativos
+    valor_total      NUMERIC(10,2) NOT NULL DEFAULT 0,
+    status           VARCHAR(10)  NOT NULL DEFAULT 'aberta'
+                     CHECK (status IN ('aberta', 'fechada', 'paga')),
+    gerada_em        TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    UNIQUE (unidade_id, competencia)
+);
