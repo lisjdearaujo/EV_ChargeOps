@@ -114,3 +114,27 @@ CREATE TABLE fatura (
     gerada_em        TIMESTAMPTZ  NOT NULL DEFAULT now(),
     UNIQUE (unidade_id, competencia)
 );
+
+-- Sessoes que a IA sinalizou e o gestor ainda precisa decidir
+-- (o motor de rateio nao fecha fatura enquanto houver linha aqui)
+CREATE VIEW v_sessoes_em_revisao AS
+SELECT s.id, s.inicio, s.fim, s.energia_kwh, s.anomaly_score, s.motivo_alerta,
+       u.nome AS usuario, un.identificador AS unidade
+FROM sessao s
+JOIN usuario u  ON u.id  = s.usuario_id
+JOIN unidade un ON un.id = u.unidade_id
+WHERE s.status_revisao = 'em_revisao';
+
+-- Consumo por unidade e mes (alimenta os graficos do painel do gestor)
+CREATE VIEW v_consumo_mensal_unidade AS
+SELECT un.id AS unidade_id,
+       un.identificador,
+       date_trunc('month', s.inicio)::date AS competencia,
+       COUNT(*)                            AS num_sessoes,
+       SUM(s.energia_kwh)                  AS kwh_total
+FROM sessao s
+JOIN usuario u  ON u.id  = s.usuario_id
+JOIN unidade un ON un.id = u.unidade_id
+WHERE s.status <> 'em_andamento'
+  AND s.status_revisao <> 'estornada'
+GROUP BY un.id, un.identificador, date_trunc('month', s.inicio);
