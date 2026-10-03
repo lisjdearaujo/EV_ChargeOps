@@ -56,5 +56,19 @@ Faturas por unidade (tabela fatura). Lista vazia se o rateio ainda não rodou.
 ```
 (valores acima são só ilustrativos do formato)
 
-## IA
-GET /previsao: previsão de consumo para o painel
+## GET /previsao
+Previsão diária de consumo para o painel do gestor (módulo de IA).
+
+```json
+{
+  "modelo": "Prophet",
+  "mae_kwh": 1.8,
+  "pico_previsto_kw": 6.9,
+  "demanda_recomendada_kw": 7.0,
+  "serie": [
+    { "data": "2026-10-03", "kwh": 5.5, "tipo": "real" },
+    { "data": "2026-10-04", "kwh": 5.8, "tipo": "previsto" }
+  ]
+}
+```
+`modelo` é o algoritmo vencedor da comparação, `mae_kwh` o erro médio por dia, e `serie` mistura os últimos dias reais e os dias previstos (`tipo`). Formato proposto pelo front, a confirmar com a pessoa da IA.
