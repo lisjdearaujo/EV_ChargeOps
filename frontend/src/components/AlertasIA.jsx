@@ -10,7 +10,7 @@ function formatarData(iso) {
   });
 }
 
-export default function AlertasIA() {
+export default function AlertasIA({ aoDecidir }) {
   const [alertas, setAlertas] = useState([]);
   const [carregando, setCarregando] = useState(true);
 
