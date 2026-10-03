@@ -19,3 +19,17 @@ CREATE TABLE unidade (
     responsavel   VARCHAR(120) NOT NULL,
     ativa         BOOLEAN      NOT NULL DEFAULT TRUE
 );
+-- Usuario: morador ou gestor. Acesso ativo (RFID cadastrado) define se paga o custo fixo
+CREATE TABLE usuario (
+    id                     SERIAL PRIMARY KEY,
+    unidade_id             INTEGER      REFERENCES unidade(id),
+    nome                   VARCHAR(120) NOT NULL,
+    email                  VARCHAR(160) NOT NULL UNIQUE,
+    perfil                 VARCHAR(10)  NOT NULL DEFAULT 'morador'
+                           CHECK (perfil IN ('morador', 'gestor')),
+    rfid_tag               VARCHAR(40)  UNIQUE,
+    acesso_ativo           BOOLEAN      NOT NULL DEFAULT TRUE,
+    veiculo_modelo         VARCHAR(80),
+    capacidade_bateria_kwh NUMERIC(6,2),          -- usada pela IA para validar consumo
+    criado_em              TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
