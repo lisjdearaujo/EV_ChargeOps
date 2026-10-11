@@ -1,0 +1,18 @@
+[33mcommit d9f881f9408ac7859a9d5045b62519104ad0872f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Gabrielly Drosda <gabriellydrosda200819@gmail.com>
+Date:   Thu Oct 8 19:54:59 2026 -0300
+
+    adiciona exploracao inicial do dataset de recargas
+
+ IA/anomaly_detection.ipynb          |  392 [32m+++[m[31m-[m
+ IA/dados/station_data_dataverse.csv | 3396 [32m+++++++++++++++++++++++++++++++++++[m
+ 2 files changed, 3786 insertions(+), 2 deletions(-)
+
+[33mcommit c2b1163005aedb93dece8b0d73f3858735cdec59[m
+Author: Gabrielly Drosda <gabriellydrosda200819@gmail.com>
+Date:   Thu Oct 8 19:54:59 2026 -0300
+
+    ignora dataset sintetico grande no git
+
+ .gitignore | 1 [32m+[m
+ 1 file changed, 1 insertion(+)
