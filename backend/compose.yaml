@@ -1,0 +1,35 @@
+name: evchargeops-backend
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: evchargeops
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: America/Sao_Paulo
+    volumes:
+      - backend_db_data:/var/lib/postgresql/data
+      - ../db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ../db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d evchargeops"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/evchargeops
+      TZ: America/Sao_Paulo
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8001:8000"
+
+volumes:
+  backend_db_data:
