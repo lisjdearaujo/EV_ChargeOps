@@ -124,14 +124,26 @@ PostgreSQL com tabelas de usuário, unidade, carregador, tarifa, sessão, leitur
 
 Visão geral do consumo por unidade, alertas da IA com decisão do gestor (aprovar ou estornar), geração e consulta de faturas e gráfico de previsão de consumo.
 
-### Desvios em relação à Sprint 01
+### Decisões técnicas
 
-- **OCPP/Modbus:** o simulador grava direto no banco. Não há servidor CSMS que receba BootNotification, Authorize, StartTransaction e StopTransaction. A validação de usuário ativo com RFID no simulador imita o Authorize, mas não é o protocolo.
-- **Bandeira da ANEEL:** não é consultada automaticamente. A tarifa vem da tabela `tarifa`, cadastrada manualmente.
-- **Sessões interrompidas:** o simulador só gera sessões concluídas. O caso aparece apenas nos dados de exemplo.
-- **Dados da IA:** a detecção de anomalias usa energia, duração, horário, histórico do usuário e capacidade da bateria. Não usa a curva de potência dos MeterValues, os alarmes do equipamento nem identidades não cadastradas.
-- **Previsão de demanda:** usa dia da semana, mês e feriados como variáveis. Temperatura não foi usada. O dataset é o público `station_data_dataverse.csv`, e não o do Kaggle citado na Sprint 01.
-- **Painel:** não tem gráficos por período, exportação de relatórios nem aplicativo do usuário.
+- **FastAPI com SQL direto (psycopg), sem ORM:** o `db/schema.sql` é a única definição do banco, e as consultas ficam visíveis e fáceis de explicar. As views `v_consumo_mensal_unidade` e `v_sessoes_em_revisao` concentram as consultas do painel.
+- **Rateio em centavos:** o custo fixo é dividido em centavos inteiros entre os usuários ativos, para o total das faturas bater exatamente com o valor a ratear, sem sobra por arredondamento.
+- **kWh de ponta por sessão:** a parcela em horário de ponta (18h às 21h, no fuso de São Paulo) é calculada a partir das leituras por minuto do medidor, e não por estimativa proporcional à duração.
+- **Fatura aberta enquanto houver sessão em revisão:** é a ligação entre a IA e a cobrança. A fatura só fecha depois da decisão do gestor, e sessões estornadas saem do cálculo.
+- **Anomalias com modelo e regras:** o Isolation Forest (não supervisionado, sem exemplos rotulados de fraude) é combinado com duas regras determinísticas (dobro da média do usuário e capacidade da bateria), que explicam o motivo do alerta em linguagem clara.
+- **Previsão: comparação de quatro modelos:** baseline, ARIMA, Prophet e XGBoost foram avaliados com divisão temporal (80% treino, 20% teste) e escolhidos pelo menor RMSE.
+- **Previsão servida por arquivo:** o notebook exporta o resultado para `IA/previsao.json`, e a API apenas o lê. Assim o backend não depende de Prophet e statsmodels, e a imagem Docker fica menor.
+- **Docker Compose:** o banco e a API sobem com um comando, e o `schema.sql` e o `seed.sql` são carregados automaticamente.
+- **Painel com modo de exemplo:** o `src/api.js` tem a opção `USAR_MOCK`, que permite desenvolver e demonstrar o painel sem a API.
+
+### Desvios em relação à Sprint 01 e justificativas
+
+- **OCPP/Modbus:** o simulador grava direto no banco, sem servidor CSMS que receba BootNotification, Authorize, StartTransaction e StopTransaction. Justificativa: o prazo da sprint foi priorizado para o rateio e a IA, que são o núcleo da solução, e o simulador permite testar todos os casos excepcionais sem depender do carregador físico. A validação de usuário ativo com RFID no simulador imita o Authorize, mas não é o protocolo. A ingestão OCPP fica como evolução.
+- **Bandeira da ANEEL:** não é consultada automaticamente. A tarifa vem da tabela `tarifa`, cadastrada manualmente. Justificativa: a tarifa manual torna os cálculos reproduzíveis e testáveis. A consulta automática fica como evolução.
+- **Sessões interrompidas:** o simulador só gera sessões concluídas. O caso excepcional está implementado no rateio e aparece nos dados de exemplo.
+- **Dados da IA:** a detecção de anomalias usa energia, duração, horário, histórico do usuário e capacidade da bateria. Não usa a curva de potência dos MeterValues, os alarmes do equipamento nem identidades não cadastradas, porque o simulador não produz esses dados.
+- **Previsão de demanda:** usa dia da semana, mês e feriados como variáveis, sem temperatura. O dataset é o público `station_data_dataverse.csv`, e não o do Kaggle citado na Sprint 01, por ser o que estava disponível para treino.
+- **Painel:** não tem gráficos por período, exportação de relatórios nem aplicativo do usuário. A prioridade foi o fluxo completo (alerta, decisão e fatura), e os itens ficam como evolução.
 
 ### Limitações
 
