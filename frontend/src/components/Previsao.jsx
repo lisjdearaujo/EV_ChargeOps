@@ -15,6 +15,7 @@ export default function Previsao() {
   }, []);
 
   if (!previsao) return <p>Carregando previsão...</p>;
+  if (!previsao.serie) return <p>Previsão indisponível no momento.</p>;
 
   const maior = Math.max(...previsao.serie.map((p) => p.kwh));
 
@@ -22,8 +23,9 @@ export default function Previsao() {
     <section className="cartao">
       <h2>Previsão de consumo</h2>
       <p className="resumo">
-        Estimativa diária feita pelo módulo de IA, para apoiar a negociação da
-        demanda contratada com a distribuidora.
+        Previsão do consumo diário (kWh) feita pelo módulo de IA, escolhida pela
+        comparação entre ARIMA, Prophet e XGBoost. Modelo treinado com um dataset
+        público de recargas.
       </p>
 
       <div className="cartoes-resumo">
@@ -34,14 +36,6 @@ export default function Previsao() {
         <div className="metrica">
           <span>Erro médio (MAE)</span>
           <strong>{previsao.mae_kwh.toFixed(1)} kWh/dia</strong>
-        </div>
-        <div className="metrica">
-          <span>Pico previsto</span>
-          <strong>{previsao.pico_previsto_kw.toFixed(1)} kW</strong>
-        </div>
-        <div className="metrica">
-          <span>Demanda recomendada</span>
-          <strong>{previsao.demanda_recomendada_kw.toFixed(1)} kW</strong>
         </div>
       </div>
 
