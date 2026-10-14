@@ -135,6 +135,9 @@ def generate_invoices(competencia: str, conn=Depends(get_db, scope='function')):
     return read_invoices(conn, parsed)
 
 
+PREVISAO = Path(__file__).resolve().parents[1] / 'IA' / 'previsao.json'
+
+
 @app.get('/previsao')
 def forecast():
     if not PREVISAO.exists():
