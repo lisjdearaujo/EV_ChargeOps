@@ -23,6 +23,7 @@ export default function AlertasIA({ aoDecidir }) {
 
   async function decidir(id, decisao) {
     await decidirSessao(id, decisao);
+    if (aoDecidir) aoDecidir();   // <- acrescente esta linha
     // Tira o alerta da tela depois que o gestor decidiu
     setAlertas((atuais) => atuais.filter((a) => a.id !== id));
   }
