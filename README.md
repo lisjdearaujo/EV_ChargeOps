@@ -94,6 +94,10 @@ docker compose -f backend/compose.yaml down
 
 Mais detalhes em `backend/README.md`, `frontend/README.md` e `docs/api.md`.
 
+### Evidências de funcionamento
+
+Capturas de tela do fluxo completo em [`docs/evidencias.md`](docs/evidencias.md) (as imagens ficam em `docs/evidencias/`). Os notebooks da pasta `IA/` estão com as saídas executadas.
+
 ### Estrutura do repositório
 
 | Pasta | Conteúdo |
