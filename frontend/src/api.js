@@ -1,9 +1,7 @@
 import { consumoMensal, sessoesEmRevisao, faturas, previsao } from "./mocks/dados";
 
-// Enquanto o backend nao existe, usamos os dados de exemplo.
-// Quando a API estiver pronta: mudar para false e ajustar API_URL.
-const USAR_MOCK = true;
-const API_URL = "http://localhost:8000";
+const USAR_MOCK = false;
+const API_URL = "http://localhost:8001";
 
 // Copia da lista de alertas, para o mock reagir as decisoes do gestor.
 let alertasMock = [...sessoesEmRevisao];
@@ -51,5 +49,15 @@ export async function buscarPrevisao() {
     return previsao;
   }
   const resposta = await fetch(`${API_URL}/previsao`);
+  return resposta.json();
+}
+
+export async function gerarFaturas(competencia) {
+  if (USAR_MOCK) {
+    return faturas.filter((f) => f.competencia === competencia);
+  }
+  const resposta = await fetch(`${API_URL}/faturas/gerar?competencia=${competencia}`, {
+    method: "POST",
+  });
   return resposta.json();
 }
