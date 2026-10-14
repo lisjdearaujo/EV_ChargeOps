@@ -28,22 +28,69 @@ A Sprint 01 definiu o problema, a base regulatória e a arquitetura da solução
 
 Protótipo funcional: banco de dados, API com rateio e simulador, módulos de IA e painel do gestor.
 
-### Como executar
+#### Como executar
 
-Requisitos: Docker e Node.js (versão LTS).
+#### O que instalar antes (uma vez só)
 
-1. API e banco, na raiz do repositório:
+1. **Docker Desktop**: https://www.docker.com/products/docker-desktop (depois de instalar, abra o programa e espere ele indicar que está rodando).
+2. **Node.js (versão LTS)**: https://nodejs.org
+3. **Git**: https://git-scm.com (se ainda não tiver).
+
+#### Passo 1: baixar o projeto
+
+Abra um terminal (no VS Code: menu **Terminal → New Terminal**) e rode:
+
 ```bash
-   docker compose -f backend/compose.yaml up --build -d
+git clone https://github.com/lisjdearaujo/EV_ChargeOps.git
+cd EV_ChargeOps
 ```
-   Documentação interativa da API: http://127.0.0.1:8001/docs
-2. Painel do gestor:
+
+#### Passo 2: ligar o banco de dados e a API
+
+Com o Docker Desktop aberto, na pasta do projeto, rode:
+
 ```bash
-   cd frontend
-   npm install
-   npm run dev
+docker compose -f backend/compose.yaml up --build -d
 ```
-   Abra http://localhost:5173
+
+A primeira vez demora alguns minutos, pois baixa e monta tudo. Para conferir se funcionou, abra no navegador:
+
+http://127.0.0.1:8001/docs
+
+Se aparecer a página "EV ChargeOps" com a lista de endpoints, a API está no ar.
+
+#### Passo 3: ligar o painel
+
+Abra um **segundo terminal** (o primeiro pode ficar como está) e rode:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+O `npm install` só precisa ser feito na primeira vez. Quando aparecer um endereço como `http://localhost:5173`, abra-o no navegador. É o painel do gestor.
+
+#### Como usar o painel
+
+1. **Visão geral:** mostra o consumo por unidade (162,0 kWh no total) e 1 alerta da IA.
+2. **Alertas:** mostra a sessão suspeita. Clique em **Aprovar** ou **Estornar**.
+3. **Faturas:** clique em gerar as faturas de 2026-09. Os valores esperados são R$ 69,93 (unidade 101) e R$ 215,92 (unidade 202).
+4. **Previsão:** mostra o gráfico de consumo previsto pelo XGBoost.
+
+#### Se algo der errado
+
+- **Painel em branco ou sem dados:** confirme que a API está no ar (passo 2) e abra o painel por `http://localhost:5173`.
+- **Erro no Docker:** confirme que o Docker Desktop está aberto e rodando.
+- **Ver o que a API está fazendo:** `docker compose -f backend/compose.yaml logs --tail=100 api`
+
+#### Para desligar
+
+No terminal do painel, aperte `Ctrl + C`. Para parar a API e o banco:
+
+```bash
+docker compose -f backend/compose.yaml down
+```
 
 Mais detalhes em `backend/README.md`, `frontend/README.md` e `docs/api.md`.
 
@@ -71,7 +118,7 @@ PostgreSQL com tabelas de usuário, unidade, carregador, tarifa, sessão, leitur
 ### IA
 
 - **Anomalias** (`IA/anomaly_detection.ipynb`): treina o Isolation Forest com energia, duração e horário da sessão e salva `IA/modelos/isolation_forest.joblib`.
-- **Previsão de demanda** (`IA/demand_forecast.ipynb`): compara baseline, ARIMA, Prophet e XGBoost sobre o consumo diário em kWh, com os últimos 20% da série como teste. O XGBoost venceu (MAE 33,48 kWh/dia e RMSE 43,24, contra ARIMA 51,13, Prophet 56,27 e baseline 111,59) e seu resultado é exportado para `IA/previsao.json`.
+- **Previsão de demanda** (`IA/demand_forecast.ipynb`): compara baseline, ARIMA, Prophet e XGBoost sobre o consumo diário em kWh, com os últimos 20% da série como teste. O XGBoost venceu (MAE 33,48 kWh/dia e RMSE 43,24, contra ARIMA 51,13, Prophet 56,34 e baseline 111,59) e seu resultado é exportado para `IA/previsao.json`.
 
 ### Painel do gestor
 
