@@ -1,18 +1,97 @@
-# Painel do gestor (front-end)
+# EV ChargeOps — Enterprise Challenge 2026
 
-Painel em React com Vite: visão geral, alertas da IA, faturas e previsão de consumo.
+**Parceiro:** GoodWe / FIAP Energy Innovation Lab
 
-## Como executar
+Plataforma de gestão e rateio de recargas de veículos elétricos em infraestruturas compartilhadas (condomínios, edifícios corporativos e campus), com IA para detecção de anomalias e previsão de consumo. O carregador de referência é o GoodWe HCA G2 (GW7K-HCA-20, 7 kW), instalado no estacionamento L1 da FIAP.
 
-1. Instale o Node.js (versão LTS recente).
-2. Suba a API (ver `backend/README.md`) e confira o endereço em `src/api.js` (`API_URL`, padrão `http://localhost:8001`).
-3. Na pasta `frontend`:
+## Equipe
 
+| Nome | RM |
+|------|----|
+| Eduardo Alves da Silva | RM 568601 |
+| Gabrielly Drosda da Silva | RM 571793 |
+| Lisandra Jacinto de Araujo | RM 574055 |
+
+## Sprint 01 (resumo)
+
+A Sprint 01 definiu o problema, a base regulatória e a arquitetura da solução. O texto completo, com fontes, está em [`docs/sprint1.md`](docs/sprint1.md).
+
+- **Problema:** recarga compartilhada sem medição individual gera rateio impreciso e conflito. O condomínio não pode lucrar com a recarga, então a transparência é obrigatória.
+- **Base regulatória:** Resolução Normativa ANEEL nº 1.000/2021. O art. 552 exige protocolos abertos (como o OCPP) em equipamentos de uso não exclusivamente privado.
+- **Arquitetura em quatro camadas:** física (carregador), conectividade (Modbus TCP e OCPP), aplicação (CSMS, ingestão, rateio e IA) e apresentação (painel do gestor e app do usuário).
+- **Rateio:** `fatura da unidade = soma(kWh da sessão × tarifa ajustada) + custo fixo mensal ÷ usuários ativos`, onde tarifa ajustada = tarifa base + fator de demanda (uso entre 18h e 21h) × adicional de ponta.
+- **IA:** previsão de demanda (ARIMA, Prophet e XGBoost) e detecção de anomalias (Isolation Forest + regras determinísticas).
+
+![Arquitetura do EV ChargeOps](https://github.com/user-attachments/assets/60e15c27-2470-45ed-8b62-5ae5f033dd27)
+
+## Sprint 02 
+
+Protótipo funcional: banco de dados, API com rateio e simulador, módulos de IA e painel do gestor.
+
+### Como executar
+
+Requisitos: Docker e Node.js (versão LTS).
+
+1. API e banco, na raiz do repositório:
 ```bash
-npm install
-npm run dev
+   docker compose -f backend/compose.yaml up --build -d
 ```
+   Documentação interativa da API: http://127.0.0.1:8001/docs
+2. Painel do gestor:
+```bash
+   cd frontend
+   npm install
+   npm run dev
+```
+   Abra http://localhost:5173
 
-O painel abre em `http://localhost:5173`. Abra por esse endereço, pois a API só libera o CORS para ele.
+Mais detalhes em `backend/README.md`, `frontend/README.md` e `docs/api.md`.
 
-Para usar dados de exemplo sem a API, mude `USAR_MOCK` para `true` em `src/api.js`.
+### Estrutura do repositório
+
+| Pasta | Conteúdo |
+|---|---|
+| `db/` | Esquema PostgreSQL (`schema.sql`) e dados de exemplo (`seed.sql`) |
+| `backend/` | API FastAPI: rateio, simulador, anomalias e previsão |
+| `frontend/` | Painel do gestor em React + Vite |
+| `IA/` | Notebooks, modelos treinados e `previsao.json` |
+| `docs/` | Sprint 01, documentação da API e evidências (`docs/evidencias/`) |
+
+### Banco de dados
+
+PostgreSQL com tabelas de usuário, unidade, carregador, tarifa, sessão, leitura e fatura, além de views usadas pelo painel (`v_consumo_mensal_unidade` e `v_sessoes_em_revisao`). O Docker Compose cria o banco e carrega `schema.sql` e `seed.sql` na primeira subida.
+
+### Backend
+
+- **Rateio (`billing.py`):** aplica a fórmula da Sprint 01. O kWh de ponta é calculado por sessão, no fuso de São Paulo, usando as leituras do medidor quando existem. O custo fixo é dividido em centavos entre os moradores com acesso ativo e RFID. Trata sessão interrompida (cobra até a interrupção), estorno manual pelo gestor, usuário sem carregamento (paga só o fixo) e unidade com dois veículos (soma tudo). A fatura fica aberta enquanto houver sessão em revisão.
+- **Anomalias (`anomaly.py`):** Isolation Forest + regra do dobro da média do usuário + capacidade da bateria, executados ao fim de cada sessão simulada. Grava score, status e motivo do alerta.
+- **Simulador (`simulator.py`):** cria sessões com leituras por minuto direto no banco e valida usuário ativo com RFID.
+- **Previsão:** a rota `/previsao` entrega o conteúdo de `IA/previsao.json`.
+
+### IA
+
+- **Anomalias** (`IA/anomaly_detection.ipynb`): treina o Isolation Forest com energia, duração e horário da sessão e salva `IA/modelos/isolation_forest.joblib`.
+- **Previsão de demanda** (`IA/demand_forecast.ipynb`): compara baseline, ARIMA, Prophet e XGBoost sobre o consumo diário em kWh, com os últimos 20% da série como teste. O XGBoost venceu (MAE 33,48 kWh/dia e RMSE 43,24, contra ARIMA 51,13, Prophet 56,27 e baseline 111,59) e seu resultado é exportado para `IA/previsao.json`.
+
+### Painel do gestor
+
+Visão geral do consumo por unidade, alertas da IA com decisão do gestor (aprovar ou estornar), geração e consulta de faturas e gráfico de previsão de consumo.
+
+### Desvios em relação à Sprint 01
+
+- **OCPP/Modbus:** o simulador grava direto no banco. Não há servidor CSMS que receba BootNotification, Authorize, StartTransaction e StopTransaction. A validação de usuário ativo com RFID no simulador imita o Authorize, mas não é o protocolo.
+- **Bandeira da ANEEL:** não é consultada automaticamente. A tarifa vem da tabela `tarifa`, cadastrada manualmente.
+- **Sessões interrompidas:** o simulador só gera sessões concluídas. O caso aparece apenas nos dados de exemplo.
+- **Dados da IA:** a detecção de anomalias usa energia, duração, horário, histórico do usuário e capacidade da bateria. Não usa a curva de potência dos MeterValues, os alarmes do equipamento nem identidades não cadastradas.
+- **Previsão de demanda:** usa dia da semana, mês e feriados como variáveis. Temperatura não foi usada. O dataset é o público `station_data_dataverse.csv`, e não o do Kaggle citado na Sprint 01.
+- **Painel:** não tem gráficos por período, exportação de relatórios nem aplicativo do usuário.
+
+### Limitações
+
+Os modelos foram treinados com um dataset público de estações de recarga de 2015, de escala de campus (cerca de 150 kWh/dia), muito maior que um condomínio com um carregador de 7 kW. Por isso o modelo de anomalias pode marcar como atípicas sessões normais de 7 kW, e a previsão demonstra o método, não é uma estimativa real do condomínio. Os valores de rateio foram conferidos com os dados de exemplo (unidades 101 e 202).
+
+### Declaração de uso de IA
+
+O grupo utilizou ferramentas de IA generativa (Claude, da Anthropic) como apoio durante a Sprint 02, nas seguintes partes: revisão do código do backend (rateio, simulador e detecção de anomalias), ajustes no painel, exportação da previsão de demanda para `IA/previsao.json` e redação da documentação (README e `docs/api.md`). Os modelos de IA (Isolation Forest e a comparação entre ARIMA, Prophet e XGBoost) foram treinados e avaliados pelo grupo nos notebooks da pasta `IA/`.
+
+O grupo revisou todo o material gerado com apoio de IA, testou o funcionamento do sistema e consegue explicar cada trecho do código.
