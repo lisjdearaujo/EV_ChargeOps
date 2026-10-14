@@ -4,6 +4,8 @@ from decimal import Decimal
 import logging
 import re
 from typing import Literal
+import json
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -135,10 +137,9 @@ def generate_invoices(competencia: str, conn=Depends(get_db, scope='function')):
 
 @app.get('/previsao')
 def forecast():
-    return {'modelo': 'Prophet', 'mae_kwh': 1.8, 'pico_previsto_kw': 6.9,
-            'demanda_recomendada_kw': 7.0, 'serie': [
-                {'data': '2026-10-03', 'kwh': 5.5, 'tipo': 'real'},
-                {'data': '2026-10-04', 'kwh': 5.8, 'tipo': 'previsto'}]}
+    if not PREVISAO.exists():
+        raise HTTPException(503, 'Previsão ainda não gerada (falta IA/previsao.json)')
+    return json.loads(PREVISAO.read_text(encoding='utf-8'))
 
 
 @app.post('/simulador/sessoes', status_code=201)
