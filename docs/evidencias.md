@@ -5,18 +5,18 @@ Capturas de tela do protótipo rodando com Docker (API e banco) e o painel em Re
 ## 1. API no ar
 Documentação interativa da API FastAPI, com todos os endpoints do protótipo.
 
-![API no ar](<img width="1911" height="993" alt="image" src="https://github.com/user-attachments/assets/e5eec7fb-b44b-4f26-8527-69ce535b0985" />)
+![API no ar] <img width="1911" height="993" alt="image" src="https://github.com/user-attachments/assets/e5eec7fb-b44b-4f26-8527-69ce535b0985" />
 
 
 ## 2. Visão geral
 Consumo do mês por unidade (162,0 kWh no total) e uma sessão aguardando revisão.
 
-![Visão geral](<img width="1913" height="983" alt="image" src="https://github.com/user-attachments/assets/59bd5cd3-8910-4338-afa8-dd8b76340939" />)
+![Visão geral] <img width="1913" height="983" alt="image" src="https://github.com/user-attachments/assets/59bd5cd3-8910-4338-afa8-dd8b76340939" />
 
 ## 3. Alerta da IA
 Sessão de 90 kWh sinalizada pelo módulo de anomalias, com o motivo do alerta (consumo acima da capacidade da bateria declarada).
 
-![Alerta da IA](<img width="1907" height="985" alt="image" src="https://github.com/user-attachments/assets/9e05a222-68d5-41d9-85f8-8f42f8ac7148" />)
+![Alerta da IA] <img width="1907" height="985" alt="image" src="https://github.com/user-attachments/assets/9e05a222-68d5-41d9-85f8-8f42f8ac7148" />
 
 ## 4. Decisão do gestor
 Depois de aprovar a sessão, o alerta sai da lista. A fatura da unidade, que estava aberta, pode ser fechada.
